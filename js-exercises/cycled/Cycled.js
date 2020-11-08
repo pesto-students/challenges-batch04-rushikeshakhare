@@ -1,33 +1,39 @@
 class Cycled {
   constructor(inputArray) {
     this.currentArray = inputArray;
-    this.iterator = this[Symbol.iterator]();
-    this.pointer = 0;
+    this.currentIndex = 0;
   }
 
   current() {
-    return this.currentArray[this.pointer];
+    return this.currentArray[this.currentIndex];
   }
 
   next() {
-    if (this.pointer + 1 === this.currentArray.length) this.pointer = 0;
-    else this.pointer += 1;
-    this.iterator.next();
-    return this.currentArray[this.pointer];
+    const arrayToBeModified = [...this.currentArray];
+    const shiftedElement = arrayToBeModified.shift();
+    arrayToBeModified.push(shiftedElement);
+    this.currentArray = arrayToBeModified;
+    return this.current();
   }
 
   previous() {
-    if (this.pointer - 1 === -1) this.pointer = this.currentArray.length - 1;
-    else this.pointer -= 1;
-    return this.currentArray[this.pointer];
+    const arrayToBeModified = [...this.currentArray];
+    const poppedElement = arrayToBeModified.pop();
+    arrayToBeModified.unshift(poppedElement);
+    this.currentArray = arrayToBeModified;
+    return this.current();
   }
 
   step(stepBy) {
-    this.pointer += stepBy;
-    while (this.pointer < 0) {
-      this.pointer += this.currentArray.length;
+    for (let i = 0; i < Math.abs(stepBy); i += 1) {
+      if (stepBy > 0) {
+        this.next();
+      } else if (stepBy < 0) {
+        this.previous();
+      }
     }
-    return this.currentArray[(this.pointer) % this.currentArray.length];
+
+    return this.current();
   }
 
   reversed() {
@@ -40,18 +46,25 @@ class Cycled {
   }
 
   get index() {
-    return this.pointer;
+    return this.currentIndex;
   }
 
   set index(indexValue) {
-    if (this.currentArray[indexValue]) this.pointer = indexValue;
+    if (this.currentArray[indexValue]) this.currentIndex = indexValue;
   }
 
-  * [Symbol.iterator]() {
-    for (let i = this.pointer; i <= this.currentArray.length - 1; i += 1) {
-      yield this.currentArray[i];
-    }
-    if (this.pointer) yield this.currentArray[this.pointer - 1];
+  [Symbol.iterator]() {
+    let count = 0;
+    return {
+      next: () => {
+        if (count < this.currentArray.length) {
+          const currentValue = this.currentArray[count];
+          count += 1;
+          return { done: false, value: currentValue };
+        }
+        return { done: true };
+      },
+    };
   }
 }
 

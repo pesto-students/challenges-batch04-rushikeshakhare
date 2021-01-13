@@ -1,7 +1,7 @@
 function validateRangeIter(inputFn) {
   return (lb, ub) => {
-    if (Number.isNaN(lb)) throw new TypeError(`${lb} is not a number`);
-    if (Number.isNaN(ub)) throw new TypeError(`${lb} is not a number`);
+    if (isNaN(lb)) throw new TypeError(`${lb} is not a number`);
+    if (isNaN(ub)) throw new TypeError(`${lb} is not a number`);
     if (lb > ub) return [];
     return inputFn.call(this, lb, ub);
   };
